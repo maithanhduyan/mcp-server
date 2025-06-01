@@ -1,0 +1,21 @@
+{
+  "servers": {
+    "mcp-time-node": {
+      "command": "node",
+      "args": [
+        "mcp-time-node/server.js"
+      ],
+      "env": {}
+    },
+    "mcp-time-docker": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "mcp-time-server"
+      ],
+      "env": {}
+    }
+  }
+}

@@ -273,6 +273,81 @@ server.run().catch(console.error);
 echo '{"jsonrpc": "2.0", "id": 1, "method": "tools/list"}' | python mcp_server.py
 ```
 
+## 📁 Projects trong Repository
+
+### 🕐 MCP Time Server (Node.js)
+
+**Vị trí**: `mcp-time-node/`
+
+Một MCP Server được viết bằng Node.js cung cấp các chức năng liên quan đến thời gian:
+
+#### ✨ Tính năng
+- **Get Current Time**: Lấy thời gian hiện tại theo múi giờ được chỉ định
+- **Convert Time**: Chuyển đổi thời gian giữa các múi giờ khác nhau
+- **IANA Timezone Support**: Hỗ trợ đầy đủ các múi giờ theo chuẩn IANA
+
+#### 🚀 Cách sử dụng
+
+```bash
+# Chạy với Node.js trực tiếp
+cd mcp-time-node
+npm install
+npm start
+
+# Chạy demo
+npm run demo
+
+# Chạy với Docker
+docker build -t mcp-time-server .
+docker run -i --rm mcp-time-server
+```
+
+#### 📋 Available Tools
+
+1. **get_current_time**
+   - Lấy thời gian hiện tại
+   - Parameter: `timezone` (IANA timezone name)
+   - Ví dụ: `Asia/Ho_Chi_Minh`, `America/New_York`, `Europe/London`
+
+2. **convert_time**
+   - Chuyển đổi thời gian giữa các múi giờ
+   - Parameters: 
+     - `time`: Thời gian theo định dạng HH:MM
+     - `source_timezone`: Múi giờ nguồn
+     - `target_timezone`: Múi giờ đích
+
+#### 🐳 Docker Support
+Project đã được containerized với Dockerfile optimized cho production:
+- Base image: `node:18-alpine`
+- Security: Non-root user
+- Size: Minimal footprint
+
+#### ⚙️ VS Code MCP Integration
+Đã cấu hình sẵn trong `.vscode/mcp.json` với 2 options:
+- **mcp-time-node**: Chạy trực tiếp với Node.js
+- **mcp-time-docker**: Chạy với Docker container
+
+#### 💡 Ví dụ sử dụng
+```json
+// Lấy thời gian hiện tại ở Việt Nam
+{
+  "name": "get_current_time",
+  "arguments": {
+    "timezone": "Asia/Ho_Chi_Minh"
+  }
+}
+
+// Chuyển đổi 14:30 từ Việt Nam sang New York
+{
+  "name": "convert_time",
+  "arguments": {
+    "time": "14:30",
+    "source_timezone": "Asia/Ho_Chi_Minh",
+    "target_timezone": "America/New_York"
+  }
+}
+```
+
 ## 🔮 Tương lai của MCP
 
 ### 1. **Ecosystem mở rộng**
