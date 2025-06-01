@@ -1,6 +1,5 @@
 {
   "servers": {
-    
     "mcp-windows-security-direct": {
       "command": "${workspaceFolder}\\mcp-windows-python\\.venv\\Scripts\\python.exe",
       "args": [
@@ -9,6 +8,26 @@
       "env": {
         "PYTHONPATH": "${workspaceFolder}\\mcp-windows-python\\src"
       }
+    },
+    "smart-home-mcp-server": {
+      "command": "node",
+      "args": [
+        "${workspaceFolder}/smart-home-mcp-server/src/mcp-server-cjs.js"
+      ],
+      "env": {
+        "NODE_ENV": "development"
+      }
+    },
+    "smart-home-mcp-server-docker": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-e",
+        "MCP_MODE=true",
+        "smart-home-mcp-server:latest"
+      ]
     }
   }
 }
