@@ -1,0 +1,25 @@
+{
+  "server": {
+    "name": "windows-security-server",
+    "version": "1.0.0",
+    "description": "MCP Server for Windows Security Monitoring"
+  },
+  "monitoring": {
+    "cpu_threshold": 70,
+    "memory_threshold": 70,
+    "check_interval": 60,
+    "firewall_auto_close_timeout": 300
+  },
+  "security": {
+    "enable_firewall_monitoring": true,
+    "enable_process_monitoring": true,
+    "enable_network_monitoring": true,
+    "log_security_events": true
+  },
+  "logging": {
+    "level": "INFO",
+    "file": "windows_security.log",
+    "max_size_mb": 10,
+    "backup_count": 5
+  }
+}
