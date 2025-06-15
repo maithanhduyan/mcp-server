@@ -1,0 +1,29 @@
+{
+  "servers": {
+    "chroma": {
+      "command": "cargo",
+      "args": [
+        "run",
+        "--release",
+        "--",
+        "--client-type",
+        "persistent",
+        "--data-dir",
+        "./chroma_data"
+      ],
+      "cwd": ".",
+      "env": {
+        // ephemeral | persistent | http | cloud
+        // Các Client Types có sẵn
+        // Type	Mô tả	Use Case
+        // ephemeral	In-memory, không persistent	Testing, development
+        // http	Connect đến ChromaDB server	Production với external DB
+        // persistent	Local storage	Standalone applications
+        // cloud	ChromaDB Cloud service	Enterprise, scalable
+        "CHROMA_CLIENT_TYPE": "persistent",
+        "CHROMA_DATA_DIR": "./chroma_data",
+        "RUST_LOG": "info"
+      }
+    }
+  },
+}
