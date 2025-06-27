@@ -8,14 +8,30 @@ import uvicorn
 import inspect
 import logging
 import logging.config
+import threading
+import queue
+import logging.handlers
 
 app = FastAPI(title="MCP Services Framework", version="1.0.0")
+
+
+# ========== ASYNC LOGGING CONFIG ==========
+log_queue = queue.Queue(-1)
+
+
+class QueueListenerThread(threading.Thread):
+    def __init__(self, log_queue, handlers):
+        super().__init__(daemon=True)
+        self.listener = logging.handlers.QueueListener(log_queue, *handlers)
+
+    def run(self):
+        self.listener.start()
 
 
 # ========== LOGGING ==========
 def get_logging_config() -> Dict[str, Any]:
     """
-    Trả về cấu hình logging với timestamp đầy đủ.
+    Trả về cấu hình logging với timestamp đầy đủ, hỗ trợ bất đồng bộ qua QueueHandler.
     Returns:
         Dict[str, Any]: Logging configuration dictionary
     """
@@ -47,33 +63,37 @@ def get_logging_config() -> Dict[str, Any]:
                 "formatter": "access",
                 "stream": "ext://sys.stdout",
             },
+            "queue": {
+                "class": "logging.handlers.QueueHandler",
+                "queue": log_queue,
+            },
         },
         "loggers": {
             # Root logger
             "": {
-                "handlers": ["console"],
+                "handlers": ["queue"],
                 "level": "INFO",
                 "propagate": False,
             },
             # Uvicorn loggers
             "uvicorn": {
-                "handlers": ["console"],
+                "handlers": ["queue"],
                 "level": "INFO",
                 "propagate": False,
             },
             "uvicorn.error": {
-                "handlers": ["console"],
+                "handlers": ["queue"],
                 "level": "INFO",
                 "propagate": False,
             },
             "uvicorn.access": {
-                "handlers": ["access_console"],
+                "handlers": ["queue"],
                 "level": "INFO",
                 "propagate": False,
             },
             # PolyMind app loggers
             "backend": {
-                "handlers": ["console"],
+                "handlers": ["queue"],
                 "level": "INFO",
                 "propagate": False,
             },
@@ -81,8 +101,18 @@ def get_logging_config() -> Dict[str, Any]:
     }
 
 
-# Cấu hình logging
+# Cấu hình logging bất đồng bộ
 logging.config.dictConfig(get_logging_config())
+
+# Khởi động QueueListener cho bất đồng bộ
+# Sử dụng handler với formatter 'detailed' để log ra console có timestamp
+console_handler = logging.StreamHandler()
+console_handler.setFormatter(logging.Formatter(
+    fmt="%(asctime)s | %(name)-20s | %(levelname)-8s | %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S"
+))
+queue_listener_thread = QueueListenerThread(log_queue, [console_handler])
+queue_listener_thread.start()
 
 logger = logging.getLogger("mcp.server")
 
