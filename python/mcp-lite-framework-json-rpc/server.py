@@ -1,9 +1,10 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import JSONResponse
+import json
 from pydantic import BaseModel, Field
 from typing import Any, Optional, Union, Dict, Callable
 from abc import ABC, abstractmethod
 from datetime import datetime
-import json
 import uvicorn
 import inspect
 import logging
@@ -539,32 +540,54 @@ register_services()
 # ========== FASTAPI ENDPOINTS ==========
 
 
+class UnicodeJSONResponse(JSONResponse):
+    """Custom JSONResponse giữ nguyên Unicode (không escape ký tự tiếng Việt)"""
+
+    def render(self, content: Any) -> bytes:
+        return json.dumps(
+            content,
+            ensure_ascii=False,
+            allow_nan=False,
+            indent=None,
+            separators=(",", ":"),
+        ).encode("utf-8")
+
+
 @app.post("/mcp")
 async def json_rpc_endpoint(request: JsonRpcRequest):
     """JSON-RPC 2.0 endpoint chính"""
     try:
         # Kiểm tra JSON-RPC version
         if request.jsonrpc != "2.0":
-            return create_error_response(
-                "INVALID_REQUEST",
-                "Invalid JSON-RPC version. Expected '2.0'",
-                request.id,
+            return UnicodeJSONResponse(
+                content=create_error_response(
+                    "INVALID_REQUEST",
+                    "Invalid JSON-RPC version. Expected '2.0'",
+                    request.id,
+                ).model_dump(),
             )
 
         # Lấy method handler
         handler = registry.get_method_handler(request.method)
         if not handler:
-            return create_error_response(
-                "METHOD_NOT_FOUND", f"Method '{request.method}' not found", request.id
+            return UnicodeJSONResponse(
+                content=create_error_response(
+                    "METHOD_NOT_FOUND",
+                    f"Method '{request.method}' not found",
+                    request.id,
+                ).model_dump(),
             )
 
         # Gọi method handler
         response = handler(request.params, request.id)
-        return response
+        # Trả về JSON giữ nguyên Unicode
+        return UnicodeJSONResponse(content=response.model_dump())
 
     except Exception as e:
-        return create_error_response(
-            "INTERNAL_ERROR", f"Internal server error: {str(e)}", request.id
+        return UnicodeJSONResponse(
+            content=create_error_response(
+                "INTERNAL_ERROR", f"Internal server error: {str(e)}", request.id
+            ).model_dump(),
         )
 
 
@@ -685,7 +708,7 @@ def main():
     uvicorn.run(
         app,
         host="localhost",
-        port=8000,
+        port=8000,  # Đổi sang cổng 8001 để tránh bị chiếm dụng
         log_level="info",
         log_config=get_logging_config(),
         access_log=True,
