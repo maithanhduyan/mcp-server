@@ -28,7 +28,7 @@
     "editor.suggest.insertMode": "replace"
   },
   "[rust]": {
-    "editor.defaultFormatter": "rust-lang.rust-analyzer",
+    // "editor.defaultFormatter": "rust-lang.rust-analyzer",
     "editor.formatOnSave": true,
     "editor.rulers": [
       80
@@ -45,5 +45,8 @@
   "rust-analyzer.lens.enable": true,
   "rust-analyzer.imports.granularity.group": "module",
   "rust-analyzer.imports.prefix": "self",
-  "python.analysis.typeCheckingMode": "basic"
+  "python.analysis.typeCheckingMode": "standard",
+  "python.analysis.extraPaths": [
+    "python\\mcp-simple-v1/src"
+  ]
 }

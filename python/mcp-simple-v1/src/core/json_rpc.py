@@ -3,6 +3,8 @@ JSON-RPC 2.0 Models
 This module defines the data models for JSON-RPC 2.0 requests and responses.
 """
 
+import json
+from fastapi.responses import JSONResponse
 from typing import Any, Optional, Union
 from pydantic import BaseModel, Field
 
@@ -30,6 +32,19 @@ class JsonRpcErrorResponse(BaseModel):
     jsonrpc: str = Field(default="2.0", description="JSON-RPC version")
     error: JsonRpcError = Field(..., description="Error details")
     id: Optional[Union[str, int]] = Field(None, description="Request ID")
+
+
+class UnicodeJSONResponse(JSONResponse):
+    """Custom JSONResponse giữ nguyên Unicode (không escape ký tự tiếng Việt)"""
+
+    def render(self, content: Any) -> bytes:
+        return json.dumps(
+            content,
+            ensure_ascii=False,
+            allow_nan=False,
+            indent=None,
+            separators=(",", ":"),
+        ).encode("utf-8")
 
 
 # Error codes theo JSON-RPC 2.0 specification
