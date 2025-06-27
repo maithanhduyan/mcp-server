@@ -1,33 +1,19 @@
 {
   "servers": {
-    "mcp-windows-security-direct": {
-      "command": "${workspaceFolder}\\mcp-windows-python\\.venv\\Scripts\\python.exe",
-      "args": [
-        "${workspaceFolder}\\mcp-windows-python\\src\\server.py"
-      ],
-      "env": {
-        "PYTHONPATH": "${workspaceFolder}\\mcp-windows-python\\src"
-      }
+    "time": {
+      "url": "http://localhost:8000"
     },
-    "smart-home-mcp-server": {
-      "command": "node",
-      "args": [
-        "${workspaceFolder}/smart-home-mcp-server/src/mcp-server-cjs.js"
-      ],
-      "env": {
-        "NODE_ENV": "development"
-      }
+    "fetch": {
+      "url": "https://remote.mcpservers.org/fetch/mcp"
     },
-    "smart-home-mcp-server-docker": {
-      "command": "docker",
-      "args": [
-        "run",
-        "-i",
-        "--rm",
-        "-e",
-        "MCP_MODE=true",
-        "smart-home-mcp-server:latest"
-      ]
+    "sequentialthinking": {
+      "url": "https://remote.mcpservers.org/sequentialthinking/mcp"
+    },
+    "coingecko": {
+      "url": "https://mcp.api.coingecko.com/sse"
+    },
+    "edgeone-pages": {
+      "url": "https://remote.mcpservers.org/edgeone-pages/mcp"
     }
   }
 }
