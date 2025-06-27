@@ -1,7 +1,7 @@
 {
   "servers": {
-    "time": {
-      "url": "http://localhost:8000"
+    "echo": {
+      "url": "http://localhost:8000/mcp"
     },
     "fetch": {
       "url": "https://remote.mcpservers.org/fetch/mcp"
