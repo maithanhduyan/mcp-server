@@ -6,8 +6,87 @@ from datetime import datetime
 import json
 import uvicorn
 import inspect
+import logging
+import logging.config
 
 app = FastAPI(title="MCP Services Framework", version="1.0.0")
+
+
+# ========== LOGGING ==========
+def get_logging_config() -> Dict[str, Any]:
+    """
+    Trả về cấu hình logging với timestamp đầy đủ.
+    Returns:
+        Dict[str, Any]: Logging configuration dictionary
+    """
+    return {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "formatters": {
+            "detailed": {
+                "format": "%(asctime)s | %(name)-20s | %(levelname)-8s | %(message)s",
+                "datefmt": "%Y-%m-%d %H:%M:%S",
+            },
+            "simple": {
+                "format": "%(asctime)s | %(levelname)-8s | %(message)s",
+                "datefmt": "%H:%M:%S",
+            },
+            "access": {
+                "format": "%(asctime)s | ACCESS | %(message)s",
+                "datefmt": "%Y-%m-%d %H:%M:%S",
+            },
+        },
+        "handlers": {
+            "console": {
+                "class": "logging.StreamHandler",
+                "formatter": "detailed",
+                "stream": "ext://sys.stdout",
+            },
+            "access_console": {
+                "class": "logging.StreamHandler",
+                "formatter": "access",
+                "stream": "ext://sys.stdout",
+            },
+        },
+        "loggers": {
+            # Root logger
+            "": {
+                "handlers": ["console"],
+                "level": "INFO",
+                "propagate": False,
+            },
+            # Uvicorn loggers
+            "uvicorn": {
+                "handlers": ["console"],
+                "level": "INFO",
+                "propagate": False,
+            },
+            "uvicorn.error": {
+                "handlers": ["console"],
+                "level": "INFO",
+                "propagate": False,
+            },
+            "uvicorn.access": {
+                "handlers": ["access_console"],
+                "level": "INFO",
+                "propagate": False,
+            },
+            # PolyMind app loggers
+            "backend": {
+                "handlers": ["console"],
+                "level": "INFO",
+                "propagate": False,
+            },
+        },
+    }
+
+
+# Cấu hình logging
+logging.config.dictConfig(get_logging_config())
+
+logger = logging.getLogger("mcp.server")
+
+# ========== JSON-RPC 2.0 ==========
 
 
 # JSON-RPC 2.0 Models
@@ -120,7 +199,7 @@ class ServiceRegistry:
     def register(self, service: ServiceBase):
         """Đăng ký một service mới"""
         self._services[service.name] = service
-        print(f"✅ Registered service: {service.name}")
+        logger.info(f"✅ Registered service: {service.name}")
 
     def get_service(self, name: str) -> Optional[ServiceBase]:
         """Lấy service theo tên"""
@@ -133,7 +212,7 @@ class ServiceRegistry:
     def register_method_handler(self, method_name: str, handler: Callable):
         """Đăng ký method handler"""
         self._method_handlers[method_name] = handler
-        print(f"✅ Registered method handler: {method_name}")
+        logger.info(f"✅ Registered method handler: {method_name}")
 
     def get_method_handler(self, method_name: str) -> Optional[Callable]:
         """Lấy method handler"""
@@ -523,34 +602,47 @@ async def health_check():
     }
 
 
-if __name__ == "__main__":
-    print("🚀 Starting MCP Services Framework...")
-    print("📡 Endpoint: http://localhost:8000/mcp")
-    print("🔧 Framework Features:")
-    print("   ✅ Easy service registration")
-    print("   ✅ Automatic MCP tool generation")
-    print("   ✅ Direct service calls")
-    print("   ✅ Built-in error handling")
-    print("   ✅ JSON Schema validation")
-    print("")
+def main():
+    """Main entry point để chạy server"""
+    logger.info("🚀 Starting MCP Services Framework...")
+    logger.info("📡 Endpoint: http://localhost:8000/mcp")
+    logger.info("🔧 Framework Features:")
+    logger.info("   ✅ Easy service registration")
+    logger.info("   ✅ Automatic MCP tool generation")
+    logger.info("   ✅ Direct service calls")
+    logger.info("   ✅ Built-in error handling")
+    logger.info("   ✅ JSON Schema validation")
+    logger.info("")
 
     services = registry.get_all_services()
-    print(f"📚 Available Services ({len(services)}):")
+    logger.info(f"📚 Available Services ({len(services)}):")
     for name, service in services.items():
-        print(f"   - {name}: {service.description}")
+        logger.info(f"   - {name}: {service.description}")
 
-    print("")
+    logger.info("")
     methods = registry.get_all_methods()
-    print(f"🔗 Available Methods ({len(methods)}):")
+    logger.info(f"🔗 Available Methods ({len(methods)}):")
     for method in methods:
-        print(f"   - {method}")
+        logger.info(f"   - {method}")
 
-    print("")
-    print("🔗 Endpoints:")
-    print("   - GET  / (framework info)")
-    print("   - GET  /services (service list)")
-    print("   - GET  /health (health check)")
-    print("   - POST /mcp (JSON-RPC endpoint)")
-    print("   - GET  /docs (API documentation)")
+    logger.info("")
+    logger.info("🔗 Endpoints:")
+    logger.info("   - GET  / (framework info)")
+    logger.info("   - GET  /services (service list)")
+    logger.info("   - GET  /health (health check)")
+    logger.info("   - POST /mcp (JSON-RPC endpoint)")
+    logger.info("   - GET  /docs (API documentation)")
 
-    uvicorn.run(app, host="localhost", port=8000, log_level="info")
+    uvicorn.run(
+        app,
+        host="localhost",
+        port=8000,
+        log_level="info",
+        log_config=get_logging_config(),
+        access_log=True,
+        # reload=True,  # Bật reload nếu cần thiết
+    )
+
+
+if __name__ == "__main__":
+    main()
