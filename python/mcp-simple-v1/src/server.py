@@ -222,8 +222,8 @@ def main():
 
     uvicorn.run(
         app,
-        host="localhost",
-        port=8000,  # Đổi sang cổng 8001 để tránh bị chiếm dụng
+        host="0.0.0.0",  # Sửa để cho phép truy cập từ bên ngoài container
+        port=8000,  # Đổi sang cổng 8001 nếu cần
         log_level="info",
         log_config=get_logging_config(),
         access_log=True,
