@@ -1,0 +1,1 @@
+# Chuẩn hóa response

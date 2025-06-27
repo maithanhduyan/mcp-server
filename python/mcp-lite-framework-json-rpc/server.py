@@ -299,7 +299,7 @@ def handle_tools_list(
 
 def handle_tools_call(
     params: Optional[Union[dict, list]], request_id: Optional[Union[str, int]]
-) -> JsonRpcResponse:
+) -> Union[JsonRpcResponse, JsonRpcErrorResponse]:
     """Call a tool"""
     if not isinstance(params, dict):
         return create_error_response(
@@ -308,6 +308,11 @@ def handle_tools_call(
 
     tool_name = params.get("name")
     arguments = params.get("arguments", {})
+
+    if not isinstance(tool_name, str):
+        return create_error_response(
+            "INVALID_PARAMS", "Tool name must be a string", request_id
+        )
 
     service = registry.get_service(tool_name)
     if not service:
@@ -337,7 +342,7 @@ def handle_service_direct_call(service_name: str):
 
     def handler(
         params: Optional[Union[dict, list]], request_id: Optional[Union[str, int]]
-    ) -> JsonRpcResponse:
+    ) -> Union[JsonRpcResponse, JsonRpcErrorResponse]:
         service = registry.get_service(service_name)
         if not service:
             return create_error_response(

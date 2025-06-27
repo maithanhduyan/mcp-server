@@ -1,0 +1,6 @@
+{
+  "jsonrpc": "2.0",
+  "method": "initialize",
+  "params": {},
+  "id": 1
+}

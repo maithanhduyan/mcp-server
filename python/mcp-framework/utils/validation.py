@@ -1,0 +1,1 @@
+# Hàm validate dữ liệu

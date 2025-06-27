@@ -7,13 +7,13 @@ use axum::{
     routing::{get, post},
     Router,
 };
-use chrono::{DateTime, Utc};
+use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use tracing::{error, info, warn};
+use tracing::{error, info};
 
 // ========== JSON-RPC 2.0 MODELS ==========
 
@@ -297,8 +297,8 @@ fn create_error_response(code: i32, message: &str, id: Option<Value>) -> JsonRpc
 // ========== METHOD HANDLERS ==========
 
 async fn handle_initialize(
-    params: Option<Value>,
-    id: Option<Value>,
+    _params: Option<Value>,
+    _id: Option<Value>,
     state: &AppState,
 ) -> Result<Value> {
     let registry = state.registry.read().await;
@@ -325,8 +325,8 @@ async fn handle_initialize(
 }
 
 async fn handle_tools_list(
-    params: Option<Value>,
-    id: Option<Value>,
+    _params: Option<Value>,
+    _id: Option<Value>,
     state: &AppState,
 ) -> Result<Value> {
     let registry = state.registry.read().await;
@@ -344,7 +344,7 @@ async fn handle_tools_list(
 
 async fn handle_tools_call(
     params: Option<Value>,
-    id: Option<Value>,
+    _id: Option<Value>,
     state: &AppState,
 ) -> Result<Value> {
     let params = params.ok_or_else(|| anyhow!("Missing parameters for tools/call"))?;
@@ -384,22 +384,22 @@ async fn handle_tools_call(
 }
 
 async fn handle_service_direct_call(
-    service_name: &str,
+    _service_name: &str,
     params: Option<Value>,
-    id: Option<Value>,
+    _id: Option<Value>,
     state: &AppState,
 ) -> Result<Value> {
     let registry = state.registry.read().await;
     let service = registry
-        .get_service(service_name)
-        .ok_or_else(|| anyhow!("Service '{}' not found", service_name))?;
+        .get_service(_service_name)
+        .ok_or_else(|| anyhow!("Service '{}' not found", _service_name))?;
 
     service.execute(params).await
 }
 
 async fn handle_server_info(
-    params: Option<Value>,
-    id: Option<Value>,
+    _params: Option<Value>,
+    _id: Option<Value>,
     state: &AppState,
 ) -> Result<Value> {
     let registry = state.registry.read().await;
