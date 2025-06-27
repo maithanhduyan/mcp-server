@@ -63,6 +63,14 @@ def get_logging_config() -> Dict[str, Any]:
                 "formatter": "access",
                 "stream": "ext://sys.stdout",
             },
+            "file": {
+                "class": "logging.handlers.RotatingFileHandler",
+                "formatter": "detailed",
+                "filename": "logs/server.log",
+                "maxBytes": 5_000_000,
+                "backupCount": 5,
+                "encoding": "utf-8",
+            },
             "queue": {
                 "class": "logging.handlers.QueueHandler",
                 "queue": log_queue,
@@ -105,13 +113,24 @@ def get_logging_config() -> Dict[str, Any]:
 logging.config.dictConfig(get_logging_config())
 
 # Khởi động QueueListener cho bất đồng bộ
-# Sử dụng handler với formatter 'detailed' để log ra console có timestamp
+# Sử dụng handler với formatter 'detailed' để log ra console và file có timestamp
 console_handler = logging.StreamHandler()
-console_handler.setFormatter(logging.Formatter(
-    fmt="%(asctime)s | %(name)-20s | %(levelname)-8s | %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S"
-))
-queue_listener_thread = QueueListenerThread(log_queue, [console_handler])
+console_handler.setFormatter(
+    logging.Formatter(
+        fmt="%(asctime)s | %(name)-20s | %(levelname)-8s | %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+)
+file_handler = logging.handlers.RotatingFileHandler(
+    filename="logs/server.log", maxBytes=5_000_000, backupCount=5, encoding="utf-8"
+)
+file_handler.setFormatter(
+    logging.Formatter(
+        fmt="%(asctime)s | %(name)-20s | %(levelname)-8s | %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+)
+queue_listener_thread = QueueListenerThread(log_queue, [console_handler, file_handler])
 queue_listener_thread.start()
 
 logger = logging.getLogger("mcp.server")
