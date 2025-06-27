@@ -8,10 +8,3 @@ dependencies = [
   "time",
 ]
 
-[tool.uv.sources]
-# Đánh dấu hai package này nằm trong workspace, uv sẽ link chúng local thay vì lấy từ PyPI
-echo = { workspace = true }
-
-[tool.uv.workspace]
-members = ["python/*"]    # include tất cả các thư mục con trong python/ thành workspace members
-# exclude = []    # có thể thêm patterns để loại thư mục không muốn include
